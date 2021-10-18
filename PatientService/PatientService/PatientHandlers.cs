@@ -7,10 +7,22 @@ public static class PatientHandlers
 {
     public static IEndpointRouteBuilder MapPatientHandlers(this IEndpointRouteBuilder builder, PathString prefix)
     {
-        builder.MapGet(prefix, PatientHandlers.GetAll).WithName("GetAll").RequireAuthorization();
-        builder.MapGet($"{prefix}/{{id}}", PatientHandlers.GetById).WithName("Get").RequireAuthorization();
-        builder.MapPut($"{prefix}/{{id}}", PatientHandlers.Upsert).WithName("Upsert").RequireAuthorization();
-        builder.MapDelete($"{prefix}/{{id}}", PatientHandlers.Delete).WithName("Delete").RequireAuthorization();
+        builder
+            .MapGet(prefix, PatientHandlers.GetAll)
+            .WithName("GetAll");
+        // .RequireAuthorization();
+        builder
+            .MapGet($"{prefix}/{{id}}", PatientHandlers.GetById)
+            .WithName("Get");
+        // .RequireAuthorization();
+        builder
+            .MapPut($"{prefix}/{{id}}", PatientHandlers.Upsert)
+            .WithName("Upsert");
+        // .RequireAuthorization();
+        builder
+            .MapDelete($"{prefix}/{{id}}", PatientHandlers.Delete)
+            .WithName("Delete");
+        // .RequireAuthorization();
 
         return builder;
     }
