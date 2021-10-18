@@ -1,14 +1,28 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using PatientService;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace PatientService;
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<PatientDbContext>(o => o.UseSqlite("Data Source=patients.db"));
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        ConfigureServices(builder.Services);
 
-// builder.Services
+        var app = builder.Build();
+        ConfigurePipeline(app);
+
+        await EnsureDb(app.Services);
+        app.Run();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+        services.AddDbContext<PatientDbContext>(o => o.UseSqlite("Data Source=patients.db"));
+
+// services
 //     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //     .AddJwtBearer(options =>
 //     {
@@ -16,29 +30,26 @@ builder.Services.AddDbContext<PatientDbContext>(o => o.UseSqlite("Data Source=pa
 //         options.Audience = "api";
 //     });
 
-builder.Services.AddAuthorization();
+        services.AddAuthorization();
+        services.AddControllers();
+    }
 
-builder.Services.AddControllers();
-
-var app = builder.Build();
-
-await EnsureDb(app.Services);
-
-app.UseSwaggerUI();
-
+    private static void ConfigurePipeline(WebApplication app)
+    {
+        app.UseSwaggerUI();
 // app.UseAuthentication();
 // app.UseAuthorization();
 
-app.MapSwagger();
-app.MapPatientHandlers("/patient");
-app.MapControllers();
+        app.MapSwagger();
+        app.MapPatientHandlers("/patient");
+        app.MapControllers();
+    }
 
-app.Run();
-
-async Task EnsureDb(IServiceProvider services)
-{
-    await using var db = services.CreateScope().ServiceProvider.GetRequiredService<PatientDbContext>();
-    await db.Database.MigrateAsync();
+    private static async Task EnsureDb(IServiceProvider services)
+    {
+        await using var db = services.CreateScope().ServiceProvider.GetRequiredService<PatientDbContext>();
+        await db.Database.MigrateAsync();
+    }
 }
 
 public record PatientInputModel(string Firstname, string Lastname);
