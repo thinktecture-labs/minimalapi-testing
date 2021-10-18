@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using PatientService;
 
@@ -6,23 +7,33 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PatientDbContext>(o => o.UseSqlite("Data Source=patients.db"));
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://demo.duendesoftware.com";
+        options.Audience = "api";
+    });
+
+builder.Services.AddAuthorization();
+    
 var app = builder.Build();
 
 await EnsureDb(app.Services);
 
-app.MapSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("", PatientHandlers.GetAll).WithName("GetAll");
-app.MapGet("{id}", PatientHandlers.GetById).WithName("Get");
-app.MapPut("{id}", PatientHandlers.Upsert).WithName("Upsert");
-app.MapDelete("{id}", PatientHandlers.Delete).WithName("Delete");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapSwagger();
+app.MapPatientHandlers("/patient");
 
 app.Run();
 
 async Task EnsureDb(IServiceProvider services)
 {
-    using var db = services.CreateScope().ServiceProvider.GetRequiredService<PatientDbContext>();
+    await using var db = services.CreateScope().ServiceProvider.GetRequiredService<PatientDbContext>();
     await db.Database.MigrateAsync();
 }
 
