@@ -51,5 +51,3 @@ public class Program
         await db.Database.MigrateAsync();
     }
 }
-
-public record PatientInputModel(string Firstname, string Lastname);

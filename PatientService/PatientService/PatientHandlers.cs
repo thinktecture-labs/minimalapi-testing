@@ -1,28 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using PatientService;
 
 namespace PatientService;
 
 public static class PatientHandlers
 {
-    public static IEndpointRouteBuilder MapPatientHandlers(this IEndpointRouteBuilder builder, PathString prefix)
+    public static IEndpointRouteBuilder MapPatientHandlers(this IEndpointRouteBuilder builder, string path)
     {
-        builder
-            .MapGet(prefix, PatientHandlers.GetAll)
-            .WithName("GetAll");
-        // .RequireAuthorization();
-        builder
-            .MapGet($"{prefix}/{{id}}", PatientHandlers.GetById)
-            .WithName("Get");
-        // .RequireAuthorization();
-        builder
-            .MapPut($"{prefix}/{{id}}", PatientHandlers.Upsert)
-            .WithName("Upsert");
-        // .RequireAuthorization();
-        builder
-            .MapDelete($"{prefix}/{{id}}", PatientHandlers.Delete)
-            .WithName("Delete");
-        // .RequireAuthorization();
+        builder.Branch(path, patients =>
+            {
+                patients.MapGet(PatientHandlers.GetAll);
+                patients.Branch("{id}", patient =>
+                    {
+                        patient.MapGet(PatientHandlers.GetById);
+                        patient.MapPut(PatientHandlers.Upsert);
+                        patient.MapDelete(PatientHandlers.Delete);
+
+                    });
+            });
+
 
         return builder;
     }
