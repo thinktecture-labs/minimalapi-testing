@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace PatientService;
@@ -6,18 +7,24 @@ public static class PatientHandlers
 {
     public static IEndpointRouteBuilder MapPatientHandlers(this IEndpointRouteBuilder builder, string path)
     {
-        builder.Branch(path, patients =>
+        builder.Branch(path
+            , patients =>
             {
-                patients.MapGet(PatientHandlers.GetAll);
-                patients.Branch("{id}", patient =>
+                patients.MapGet(PatientHandlers.GetAll)
+                    .Produces<Patient[]>();
+                patients.Branch("{id}"
+                    , patient =>
                     {
-                        patient.MapGet(PatientHandlers.GetById);
-                        patient.MapPut(PatientHandlers.Upsert);
-                        patient.MapDelete(PatientHandlers.Delete);
-
+                        patient.MapGet(PatientHandlers.GetById)
+                            .Produces<Patient>()
+                            .Produces(StatusCodes.Status404NotFound);
+                        patient.MapPut(PatientHandlers.Upsert)
+                            .Produces(StatusCodes.Status204NoContent);
+                        patient.MapDelete(PatientHandlers.Delete)
+                            .Produces(StatusCodes.Status204NoContent)
+                            .Produces(StatusCodes.Status404NotFound);
                     });
             });
-
 
         return builder;
     }
@@ -48,7 +55,7 @@ public static class PatientHandlers
 
     private static async Task<IResult> Upsert(PatientDbContext db, Guid id, PatientInputModel input)
     {
-        var p = await db.Patients.FirstOrDefaultAsync(p => p.Id == id);
+        var p = await db.Patients.FindAsync(id);
         if (p == null)
         {
             p = new Patient()

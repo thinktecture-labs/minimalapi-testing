@@ -31,14 +31,14 @@ public static class IEndpointRouteBuilderExtensions
         public BranchedEndpointRouteBuilder Branch(string path, Action<BranchedEndpointRouteBuilder> routes) =>
             new BranchedEndpointRouteBuilder(_app, CombinePath(_path, path), routes);
 
-        public IEndpointConventionBuilder MapMethods(IEnumerable<string> methods, Delegate requestDelegate) =>
+        public RouteHandlerBuilder MapMethods(IEnumerable<string> methods, Delegate requestDelegate) =>
             _app.MapMethods(_path, methods, requestDelegate);
 
-        public IEndpointConventionBuilder MapGet(Delegate requestDelegate) => MapMethods(GET, requestDelegate);
+        public RouteHandlerBuilder MapGet(Delegate requestDelegate) => MapMethods(GET, requestDelegate);
 
-        public IEndpointConventionBuilder MapPut(Delegate requestDelegate) => MapMethods(PUT, requestDelegate);
+        public RouteHandlerBuilder MapPut(Delegate requestDelegate) => MapMethods(PUT, requestDelegate);
 
-        public IEndpointConventionBuilder MapDelete(Delegate requestDelegate) => MapMethods(DELETE, requestDelegate);
+        public RouteHandlerBuilder MapDelete(Delegate requestDelegate) => MapMethods(DELETE, requestDelegate);
 
         private string CombinePath(params string[] paths) =>  String.Join('/', paths);
     }
