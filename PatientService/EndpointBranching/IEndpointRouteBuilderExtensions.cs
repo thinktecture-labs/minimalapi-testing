@@ -2,7 +2,7 @@ namespace PatientService;
 
 public static class IEndpointRouteBuilderExtensions
 {
-    public static BranchedEndpointRouteBuilder Branch(this IEndpointRouteBuilder app
+    public static BranchedEndpointRouteBuilder Path(this IEndpointRouteBuilder app
         , string path
         , Action<BranchedEndpointRouteBuilder> child)
     {
@@ -28,7 +28,7 @@ public static class IEndpointRouteBuilderExtensions
             routes(this);
         }
 
-        public BranchedEndpointRouteBuilder Branch(string path, Action<BranchedEndpointRouteBuilder> routes) =>
+        public BranchedEndpointRouteBuilder Path(string path, Action<BranchedEndpointRouteBuilder> routes) =>
             new BranchedEndpointRouteBuilder(_app, CombinePath(_path, path), routes);
 
         public RouteHandlerBuilder MapMethods(IEnumerable<string> methods, Delegate requestDelegate) =>
